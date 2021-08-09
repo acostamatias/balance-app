@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-07-2021 a las 01:50:40
+-- Tiempo de generación: 09-08-2021 a las 18:56:00
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 7.4.21
 
@@ -43,6 +43,7 @@ CREATE TABLE `operaciones` (
   `operacionesConcepto` varchar(250) NOT NULL,
   `operacionesMonto` int(6) NOT NULL,
   `operacionesFecha` date NOT NULL,
+  `relaUsuario` int(11) NOT NULL,
   `relaTipo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -50,14 +51,15 @@ CREATE TABLE `operaciones` (
 -- Volcado de datos para la tabla `operaciones`
 --
 
-INSERT INTO `operaciones` (`operacionesId`, `operacionesConcepto`, `operacionesMonto`, `operacionesFecha`, `relaTipo`) VALUES
-(8, 'Venta de mercadería', 25000, '2021-07-26', 1),
-(9, 'Cobro de deudas', 5000, '2021-07-26', 1),
-(10, 'Compra de mercadería', 10000, '2021-07-26', 2),
-(11, 'Pago de servicios', 5000, '2021-07-26', 2),
-(12, 'Impuestos', 1500, '2021-07-26', 2),
-(13, 'Alquiler', 8000, '2021-07-26', 2),
-(14, 'Venta de mercadería', 7000, '2021-07-26', 1);
+INSERT INTO `operaciones` (`operacionesId`, `operacionesConcepto`, `operacionesMonto`, `operacionesFecha`, `relaUsuario`, `relaTipo`) VALUES
+(19, 'Compra de mercadería', 6000, '2021-08-09', 4, 1),
+(20, 'Venta de mercadería', 2500, '2021-08-09', 4, 1),
+(21, 'Pago de impuestos', 1300, '2021-08-09', 4, 2),
+(22, 'Compra de mercadería', 30000, '2021-08-09', 5, 1),
+(23, 'Pago de alquiler', 6000, '2021-08-09', 5, 2),
+(24, 'Pago de servicios', 3000, '2021-08-09', 5, 2),
+(25, 'Cobro de deudas', 2500, '2021-08-09', 5, 1),
+(26, 'Venta de mercadería', 3500, '2021-08-09', 5, 1);
 
 -- --------------------------------------------------------
 
@@ -81,6 +83,27 @@ INSERT INTO `tipos` (`tiposId`, `tiposNombre`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `usuariosId` int(11) NOT NULL,
+  `usuariosNombre` varchar(250) NOT NULL,
+  `usuariosEmail` varchar(250) NOT NULL,
+  `usuariosPassword` varchar(250) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`usuariosId`, `usuariosNombre`, `usuariosEmail`, `usuariosPassword`) VALUES
+(4, 'acostamatias', 'matias@gmail.com', '$2b$10$AIMrKMOfndAMf9N5bU4dd.M2pbVTpegV4J50lMSQv1CYYKajm90/O'),
+(5, 'user', 'user@gmail.com', '$2b$10$oA5LKLkmEPPHLzWnP0ilceNeI3e0WzT1V1ejEPIBiycPEmnX7P2Ie');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura para la vista `balance`
 --
 DROP TABLE IF EXISTS `balance`;
@@ -96,13 +119,20 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 ALTER TABLE `operaciones`
   ADD PRIMARY KEY (`operacionesId`),
-  ADD KEY `relaTipo` (`relaTipo`);
+  ADD KEY `relaTipo` (`relaTipo`),
+  ADD KEY `relaUsuario` (`relaUsuario`);
 
 --
 -- Indices de la tabla `tipos`
 --
 ALTER TABLE `tipos`
   ADD PRIMARY KEY (`tiposId`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`usuariosId`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -112,7 +142,13 @@ ALTER TABLE `tipos`
 -- AUTO_INCREMENT de la tabla `operaciones`
 --
 ALTER TABLE `operaciones`
-  MODIFY `operacionesId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `operacionesId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `usuariosId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
@@ -122,7 +158,8 @@ ALTER TABLE `operaciones`
 -- Filtros para la tabla `operaciones`
 --
 ALTER TABLE `operaciones`
-  ADD CONSTRAINT `operaciones_ibfk_1` FOREIGN KEY (`relaTipo`) REFERENCES `tipos` (`tiposId`);
+  ADD CONSTRAINT `operaciones_ibfk_1` FOREIGN KEY (`relaTipo`) REFERENCES `tipos` (`tiposId`),
+  ADD CONSTRAINT `operaciones_ibfk_2` FOREIGN KEY (`relaUsuario`) REFERENCES `usuarios` (`usuariosId`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
