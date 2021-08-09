@@ -20,6 +20,7 @@ app.use((req, res, next) => {
 // Rutas
 app.use(require('./routes/index'))
 app.use(require('./routes/operaciones.routes'))
+app.use(require('./routes/usuarios.routes'))
 
 // Archivos públicos
 

@@ -10,6 +10,8 @@ import Nav from '../componentes/Nav'
 import BalanceOperaciones from "../componentes/BalanceOperaciones"
 import OperacionesList from "../componentes/OperacionesList"
 import ModalOperaciones from '../componentes/ModalOperaciones'
+import LoginForm from "../componentes/Login"
+import PrivateRoute from './PrivateRoute'
 
 const AppRouter = () => {
     const [operations, setOperations] = useState([])
@@ -72,7 +74,13 @@ const AppRouter = () => {
         <Router>
             <Nav />
             <Switch>
-                <Route exact path="/operations" >
+                <Route exact path="/login">
+                    <LoginForm login={"login"}></LoginForm>
+                </Route>
+                <Route exact path="/register">
+                    <LoginForm></LoginForm>
+                </Route>
+                <PrivateRoute exact path="/operations" >
                         <OperacionesList 
                             operations={operations}
                             operation={operation}
@@ -93,11 +101,11 @@ const AppRouter = () => {
                             deleteOperacion={deleteOperacion}
                             setTitle={setTitle}
                         ></ModalOperaciones>
-                </Route>
-                <Route path="/">
+                </PrivateRoute>
+                <PrivateRoute path="/home">
                     <BalanceOperaciones operations={operations} setOperations={setOperations}>
                     </BalanceOperaciones> 
-                </Route>
+                </PrivateRoute>
             </Switch>
         </Router>
     )

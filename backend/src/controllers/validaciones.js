@@ -10,4 +10,14 @@ validaciones.regexConcepto = (concepto) => {
     return regex.test(concepto)
 }
 
+validaciones.regexEmail = (email) => {
+    const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return regex.test(email)
+}
+
+validaciones.regexUsuario = (user) => {
+    const regex = /^[a-zA-Z0-9\-_\.]+$/
+    return regex.test(user)
+}
+
 module.exports = validaciones
