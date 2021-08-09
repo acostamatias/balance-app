@@ -1,13 +1,14 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import axios from 'axios'
 import { Redirect } from 'react-router'
 import Mensaje from './Mensaje'
 import Cookies from 'universal-cookie'
+import { AppContext } from './Provider'
 
 const cookies = new Cookies()
 
 const LoginForm = (props) => {
-
+  const [state, setState] = useContext(AppContext)
   const [redirect, setRedirect] = useState(false)
   const [errors, setErrors] = useState({
     type: '',
@@ -46,6 +47,9 @@ const LoginForm = (props) => {
               usuariosEmail: ''
             }
           )
+          setState({...state, usuarioId: res.data.usuariosId})
+
+          console.log(state)
           setRedirect(true)
         }else {
           setErrors({type: 'danger', mensaje: 'Los datos ingresados son incorrectos.'})

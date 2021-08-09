@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Link} from 'react-router-dom'
 import Cookies from 'universal-cookie'
+import { AppContext } from './Provider';
 
 const cookies = new Cookies()
 
 const Nav = () => {
+
+  const [state, setState] = useContext(AppContext)
 
   const logOut = () => {
     cookies.remove('id', {path: '/'})
@@ -19,7 +22,7 @@ const Nav = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          { cookies.get('id') ? 
+          { state.usuarioId !== null ? 
             <>
               <ul className="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
                 <li className="nav-item">
