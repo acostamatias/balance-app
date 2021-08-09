@@ -1,20 +1,78 @@
-import React from 'react'
+import React, {useContext, useEffect} from 'react'
+import axios from 'axios'
+
+import {AppContext} from './Provider'
+import Cookies from 'universal-cookie'
+
+const cookie = new Cookies()
 
 const OperacionesList = (props) => {
+    const [state, setState] = useContext(AppContext)
+
+    const getOperations = async (type) => {
+        await axios.get('http://localhost:4000/operaciones-tipo', {params: {id: type, idUsuario:cookie.get('id')}}).then(
+            (res) => {
+                setState({...state, operations: res.data})
+            }
+        )
+    }
+
+    useEffect(() => {  
+        getOperations(0)
+        console.log('efftc')
+    },[])
 
     const reset = () => {
 
-        props.setTitle('Nueva')
-        props.setOperation({        
+        setState({
+            ...state, 
+            title: 'Nueva',
+            operacionesId: '',
             operacionesConcepto: '',
             operacionesMonto: '',
+            operacionesFecha: '',
             relaTipo: ''
         })
     }
 
+    const getOperation = async (id) => {
+        await axios.get('http://localhost:4000/operaciones/' + id).then(
+            (res) => {
+                setState({
+                    ...state,
+                    operacionesId: res.data[0].operacionesId,
+                    operacionesConcepto: res.data[0].operacionesConcepto,
+                    operacionesMonto: res.data[0].operacionesMonto,
+                    operacionesFecha: res.data[0].operacionesFecha,
+                    relaTipo: res.data[0].relaTipo,
+                })
+                console.log(state)
+            }
+        )
+    }
+
+    let opciones = document.getElementsByClassName('opciones')
+
+    const changeColor = (selected) => {
+        cambiarClase();
+        opciones[selected].classList.add('btn-success');
+        opciones[selected].classList.remove('border');
+    }
+    
+    const cambiarClase = () => {
+        for (let i = 0; i < opciones.length; i++) {
+          opciones[i].classList.remove('btn-success')
+          opciones[i].classList.add('border')
+        }
+    }
+    
+    for (let i = 0; i < opciones.length; i++) {
+        opciones[i].addEventListener("click", () => changeColor(i))
+    }
+
     return(
         <>
-            {props.operations.length > 0 ? (
+            {state.operations.length > 0 ? (
                 <div className="container">
                     <div className="row">
                         <div className="bg-white shadow-sm p-3 rounded border mt-5 d-flex align-items-center">
@@ -32,21 +90,21 @@ const OperacionesList = (props) => {
                             <span className="text-secondary me-2">Filtrar por:</span>
                             <button
                                 className="btn btn-success btn-sm opciones shadow-sm border px-3 rounded-pill"
-                                onClick={() => props.getOperations(0)}
+                                onClick={() => getOperations(0)}
                             >
                                 Todas
                             </button>
                             <span className="text-secondary mx-1">/</span>
                             <button 
                                 className="btn btn-sm opciones shadow-sm border px-3 rounded-pill"
-                                onClick={() => props.getOperations(1)}
+                                onClick={() => getOperations(1)}
                             >
                                 Ingreso
                             </button>
                             <span className="text-secondary mx-1">/</span>
                             <button 
                                 className="btn btn-sm opciones shadow-sm border px-3 rounded-pill"
-                                onClick={() => props.getOperations(2)}
+                                onClick={() => getOperations(2)}
                             >
                                 Egreso
                             </button>
@@ -63,8 +121,8 @@ const OperacionesList = (props) => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {props.operations !== 'error' ? (
-                                    props.operations.map(item => (
+                                {state.operations !== 'error' ? (
+                                    state.operations.map(item => (
                                     <tr key={item.operacionesId}>
                                         <td>{item.operacionesConcepto}</td>
                                         <td>${item.operacionesMonto}</td>
@@ -74,7 +132,7 @@ const OperacionesList = (props) => {
                                             <button 
                                                 type="button" 
                                                 id="idEditar" 
-                                                onClick={() => props.getOperation(item.operacionesId)} 
+                                                onClick={() => getOperation(item.operacionesId)} 
                                                 className="btn btn-secondary btn-sm me-2 mb-1 px-3 rounded-pill shadow-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#staticBackdrop"
@@ -87,7 +145,7 @@ const OperacionesList = (props) => {
                                                 className="btn btn-danger btn-sm mb-1 px-3 rounded-pill shadow-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#modalEliminar"
-                                                onClick={() => props.getOperation(item.operacionesId)} 
+                                                onClick={() => getOperation(item.operacionesId)} 
                                             >
                                                 Eliminar
                                             </button>
@@ -106,7 +164,7 @@ const OperacionesList = (props) => {
                     <h3>No se encontraron resultados</h3>
 
                     <button 
-                        className="btn btn-sm btn-success ms-auto shadow-sm border" 
+                        className="btn btn-sm btn-success ms-auto shadow-sm rounded-pill" 
                         data-bs-toggle="modal" 
                         onClick={() => reset()}
                         data-bs-target="#staticBackdrop"

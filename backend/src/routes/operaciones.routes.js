@@ -6,11 +6,11 @@ const {
 
 router.get('/operaciones/:id', getOperacion)
 
-router.get('/operaciones-tipo/:tipo', operacionesTipo)
+router.get('/operaciones-tipo', operacionesTipo)
 
-router.get('/balance', getBalance)
+router.get('/balance/:id', getBalance)
 
-router.get('/ultimas-operaciones', getUltimasOperaciones)
+router.get('/ultimas-operaciones/:id', getUltimasOperaciones)
 
 router.post('/nueva-operacion', nuevaOperacion)
 

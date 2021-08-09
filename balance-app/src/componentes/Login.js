@@ -49,7 +49,7 @@ const LoginForm = (props) => {
           setRedirect(true)
         }else {
           setErrors({type: 'danger', mensaje: 'Los datos ingresados son incorrectos.'})
-          setTimeout(() => setErrors({type: ''}), 5000)
+          setTimeout(() => setErrors({type: ''}), 3000)
         }
     })
     .catch(err => {

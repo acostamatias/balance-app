@@ -5,7 +5,7 @@ const operacionesCtrl = {}
 // GET operacion por id
 operacionesCtrl.getOperacion = (req,res) => {
   const id = req.params.id
-  let sql = 'SELECT * from operaciones where operacionesId = ?'
+  let sql = 'SELECT * from operaciones where operacionesId = ? order by operacionesFecha asc'
   db.query(sql, [id], (err, results) => {
     if(err) throw err
 
@@ -19,28 +19,42 @@ operacionesCtrl.getOperacion = (req,res) => {
 
 // GET operaciones según el tipo
 operacionesCtrl.operacionesTipo = (req,res) => {
-  const tipo = req.params.tipo
-  let sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM operaciones WHERE relaTipo = ? order by operacionesFecha asc'
-  if(tipo == 0) {
-    sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM operaciones order by operacionesFecha asc'
+  const tipo = req.query
+  
+  let sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM operaciones WHERE relaTipo = ? and relaUsuario = ? order by operacionesFecha desc'
+  if(tipo.id == 0) {
+    sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM operaciones WHERE relaUsuario = ? order by operacionesFecha desc'
+    db.query(sql, [tipo.idUsuario], (err, results) => {
+      if(err) throw err
+  
+      if(results.length > 0){
+        res.send(results)
+  
+      }else {
+        return
+      }
+    })
+  }else {
+    db.query(sql, [tipo.id, tipo.idUsuario], (err, results) => {
+      if(err) throw err
+  
+      if(results.length > 0){
+        res.send(results)
+      }else {
+        return
+      }
+    })
   }
 
-  db.query(sql, [tipo], (err, results) => {
-    if(err) throw err
-    if(results.length > 0){
-      res.send(results)
-
-    }else {
-      return
-    }
-  })
+  
 }
 
 // GET balance 
 operacionesCtrl.getBalance = (req,res) => {
-  let sql = 'SELECT (ingreso - egreso) as balance FROM (select sum(operacionesMonto) as ingreso from operaciones where relaTipo = 1) as v1, (select sum(operacionesMonto) as egreso from operaciones where relaTipo = 2) as v2'
+  let id = req.params.id
+  let sql = 'SELECT (ingreso - egreso) as balance FROM (select sum(operacionesMonto) as ingreso from operaciones where relaTipo = 1 and relaUsuario = ?) as v1, (select sum(operacionesMonto) as egreso from operaciones where relaTipo = 2 and relaUsuario = ?) as v2'
 
-  db.query(sql, (err, results) => {
+  db.query(sql,[id, id], (err, results) => {
     if(err) throw err
     if(results.length > 0){
       res.send(results)
@@ -51,9 +65,10 @@ operacionesCtrl.getBalance = (req,res) => {
 }
 
 operacionesCtrl.getUltimasOperaciones = (req,res) => {
-  let sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM `operaciones` order by operacionesFecha desc limit 10'
+  let id = req.params.id
+  let sql = 'SELECT *, DATE_FORMAT(operacionesFecha, "%d/%m/%Y") as fecha FROM `operaciones` WHERE relaUsuario = ? order by operacionesFecha desc limit 10'
 
-  db.query(sql, (err, results) => {
+  db.query(sql, [id], (err, results) => {
     if(err) throw err
     if(results.length > 0){
       res.send(results)
@@ -66,7 +81,7 @@ operacionesCtrl.getUltimasOperaciones = (req,res) => {
 
 // POST nueva operación
 operacionesCtrl.nuevaOperacion = async (req,res) => {
-  const {operacionesConcepto, operacionesMonto, relaTipo} = req.body
+  const {operacionesConcepto, operacionesMonto, relaTipo, relaUsuario} = req.body
   const sql = "INSERT INTO operaciones SET ?"
 
   const operacionesFecha = new Date()
@@ -75,7 +90,8 @@ operacionesCtrl.nuevaOperacion = async (req,res) => {
     operacionesConcepto,
     operacionesMonto,
     operacionesFecha,
-    relaTipo
+    relaTipo,
+    relaUsuario
   }
   
   if(regexMonto(nuevaOperacion.operacionesConcepto)){
@@ -119,6 +135,7 @@ operacionesCtrl.actualizarOperacion = async (req,res) => {
     operacionesFecha,
     relaTipo
   }
+  console.log(actualizar)
 
   if(actualizar.operacionesMonto !== 0 || actualizar.operacionesConcepto !== '' || actualizar.relaTipo !== 0) {
     await db.query(sql, [actualizar, operacionesId], (err, result) => {
